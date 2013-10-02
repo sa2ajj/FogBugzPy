@@ -46,11 +46,11 @@ class FogBugz:
             response = self.__makerequest('logon', email=username, password=password)
         except FogBugzAPIError, e:
             raise FogBugzLogonError(e)
-        
+
         self._token = response.token.string
         if type(self._token) == CData:
-                self._token = self._token.encode('utf-8')
-        
+            self._token = self._token.encode('utf-8')
+
     def logoff(self):
         """
         Logs off the current user.
@@ -58,7 +58,7 @@ class FogBugz:
         self.__makerequest('logoff')
         self._token = None
 
-    def token(self,token):
+    def token(self, token):
         """
         Set the token without actually logging on.  More secure.
         """
@@ -80,18 +80,18 @@ class FogBugz:
 
         for k, v in fields.items():
             if DEBUG:
-                print("field: %s: %s"% (repr(k), repr(v)))
-            buf.write(crlf.join([ '--' + BOUNDARY, 'Content-disposition: form-data; name="%s"' % k, '', str(v), '' ]))
-        
+                print("field: %s: %s" % (repr(k), repr(v)))
+            buf.write(crlf.join(['--' + BOUNDARY, 'Content-disposition: form-data; name="%s"' % k, '', str(v), '']))
+
         n = 0
         for f, h in files.items():
             n += 1
-            buf.write(crlf.join([ '--' + BOUNDARY, 'Content-disposition: form-data; name="File%d"; filename="%s"' % ( n, f), '' ]))
-            buf.write(crlf.join([ 'Content-type: application/octet-stream', '', '' ]))
+            buf.write(crlf.join(['--' + BOUNDARY, 'Content-disposition: form-data; name="File%d"; filename="%s"' % (n, f), '']))
+            buf.write(crlf.join(['Content-type: application/octet-stream', '', '']))
             buf.write(h.read())
             buf.write(crlf)
-        
-        buf.write('--' + BOUNDARY + '--' + crlf) 
+
+        buf.write('--' + BOUNDARY + '--' + crlf)
         content_type = "multipart/form-data; boundary=%s" % BOUNDARY
         return content_type, buf.getvalue()
 
@@ -99,16 +99,18 @@ class FogBugz:
         kwargs["cmd"] = cmd
         if self._token:
             kwargs["token"] = self._token
-        
-        fields = dict([k, v.encode('utf-8') if isinstance(v,basestring) else v] for k, v in kwargs.items())
+
+        fields = dict([k, v.encode('utf-8') if isinstance(v, basestring) else v] for k, v in kwargs.items())
         files = fields.get('Files', {})
         if 'Files' in fields:
             del fields['Files']
-       
+
         content_type, body = self.__encode_multipart_formdata(fields, files)
-        headers = { 'Content-Type': content_type,
-                    'Content-Length': str(len(body))}
- 
+        headers = {
+            'Content-Type': content_type,
+            'Content-Length': str(len(body))
+        }
+
         try:
             request = urllib2.Request(self._url.encode('utf-8'), body, headers)
             response = BeautifulSoup(self._opener.open(request)).response
@@ -139,5 +141,3 @@ class FogBugz:
                 return self.__makerequest(name, **kwargs)
             self.__handlerCache[name] = handler
         return self.__handlerCache[name]
-
-
