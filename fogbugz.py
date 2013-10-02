@@ -21,10 +21,9 @@ class FogBugz:
         if not url.endswith('/'):
             url += '/'
 
-        if token:
-            self._token = token.encode('utf-8')
-        else:
-            self._token = None
+        self._token = None
+
+        self.token(token)
 
         self._opener = urllib2.build_opener()
         try:
@@ -47,9 +46,10 @@ class FogBugz:
         except FogBugzAPIError, err:
             raise FogBugzLogonError(err)
 
-        self._token = response.token.string
-        if type(self._token) == CData:
-            self._token = self._token.encode('utf-8')
+        if isinstance(response.token, CData):
+            self.token(str(response.token.string))
+        else:
+            self.token(response.token.string)
 
     def logoff(self):
         """
