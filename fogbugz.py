@@ -29,8 +29,8 @@ class FogBugz:
         self._opener = urllib2.build_opener()
         try:
             soup = BeautifulSoup(self._opener.open(url + 'api.xml'))
-        except (urllib2.URLError, urllib2.HTTPError), e:
-            raise FogBugzConnectionError("Library could not connect to the FogBugz API.  Either this installation of FogBugz does not support the API, or the url, %s, is incorrect.\n\nError: %s" % (url, e))
+        except (urllib2.URLError, urllib2.HTTPError), err:
+            raise FogBugzConnectionError("Library could not connect to the FogBugz API.  Either this installation of FogBugz does not support the API, or the url, %s, is incorrect.\n\nError: %s" % (url, err))
         self._url = url + soup.response.url.string
         self.currentFilter = None
 
@@ -44,8 +44,8 @@ class FogBugz:
             self.logoff()
         try:
             response = self.__makerequest('logon', email=username, password=password)
-        except FogBugzAPIError, e:
-            raise FogBugzLogonError(e)
+        except FogBugzAPIError, err:
+            raise FogBugzLogonError(err)
 
         self._token = response.token.string
         if type(self._token) == CData:
@@ -114,9 +114,9 @@ class FogBugz:
         try:
             request = urllib2.Request(self._url.encode('utf-8'), body, headers)
             response = BeautifulSoup(self._opener.open(request)).response
-        except urllib2.URLError, e:
-            raise FogBugzConnectionError(e)
-        except UnicodeDecodeError, e:
+        except urllib2.URLError, err:
+            raise FogBugzConnectionError(err)
+        except UnicodeDecodeError:
             print kwargs
             raise
 
