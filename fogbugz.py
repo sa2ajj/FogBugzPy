@@ -1,6 +1,6 @@
 import urllib2
 import mimetools
-from StringIO import StringIO
+from cStringIO import StringIO
 
 from BeautifulSoup import BeautifulSoup, CData
 
