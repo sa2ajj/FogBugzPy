@@ -70,7 +70,7 @@ class FogBugz:
         files is a sequence of (filename, filehandle) files to be uploaded
         returns (content_type, body)
         """
-        BOUNDARY = mimetools.choose_boundary()
+        boundary = mimetools.choose_boundary()
 
         if len(files) > 0:
             fields['nFileCount'] = str(len(files))
@@ -81,18 +81,18 @@ class FogBugz:
         for k, v in fields.items():
             if DEBUG:
                 print("field: %s: %s" % (repr(k), repr(v)))
-            buf.write(crlf.join(['--' + BOUNDARY, 'Content-disposition: form-data; name="%s"' % k, '', str(v), '']))
+            buf.write(crlf.join(['--' + boundary, 'Content-disposition: form-data; name="%s"' % k, '', str(v), '']))
 
         n = 0
         for f, h in files.items():
             n += 1
-            buf.write(crlf.join(['--' + BOUNDARY, 'Content-disposition: form-data; name="File%d"; filename="%s"' % (n, f), '']))
+            buf.write(crlf.join(['--' + boundary, 'Content-disposition: form-data; name="File%d"; filename="%s"' % (n, f), '']))
             buf.write(crlf.join(['Content-type: application/octet-stream', '', '']))
             buf.write(h.read())
             buf.write(crlf)
 
-        buf.write('--' + BOUNDARY + '--' + crlf)
-        content_type = "multipart/form-data; boundary=%s" % BOUNDARY
+        buf.write('--' + boundary + '--' + crlf)
+        content_type = "multipart/form-data; boundary=%s" % boundary
         return content_type, buf.getvalue()
 
     def __makerequest(self, cmd, **kwargs):
